@@ -1,16 +1,17 @@
-import React, { Component } from "react";
-import { Button, TextField } from "@mui/material";
-import { DesktopDatePicker , LocalizationProvider} from '@mui/x-date-pickers';
+import React, { Component } from 'react';
+import { Button, TextField } from '@mui/material';
+import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import Axios from 'axios';
 
 class AddTodo extends Component {
   // Create a local react state of the this component with both content date property set to nothing.
   constructor() {
     super();
     this.state = {
-      content: "",
-      date: "",
-      duedate: null
+      content: '',
+      date: '',
+      duedate: null,
     };
   }
   // The handleChange function updates the react state with the new input value provided from the user and the current date/time.
@@ -19,17 +20,17 @@ class AddTodo extends Component {
   handleChange = (event) => {
     this.setState({
       content: event.target.value,
-      date: Date().toLocaleString('en-US')
+      date: Date().toLocaleString('en-US'),
     });
   };
 
   handleDateChange = (event) => {
-    let date = null
-    if(event != null){
-      date = new Date(event).toLocaleDateString()
+    let date = null;
+    if (event != null) {
+      date = new Date(event).toLocaleDateString();
     }
     this.setState({
-      duedate: date
+      duedate: date,
     });
   };
   // The handleSubmit function collects the forms input and puts it into the react state.
@@ -38,12 +39,29 @@ class AddTodo extends Component {
   // in the Home.js file which then adds the input into the list.
   handleSubmit = (event) => {
     event.preventDefault();
+
     if (this.state.content.trim()) {
+      const jsonObject = {
+        id: this.state.id,
+        task: this.content,
+        currentDate: this.date,
+        dueDate: this.dueDate,
+      };
+      Axios({
+        method: 'POST',
+        url: 'http://localhost:3001/add/item',
+        data: { jsonObject },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).then((res) => {
+        console.log(res.data.message);
+      });
       this.props.addTodo(this.state);
       this.setState({
-        content: "",
-        date: "",
-        duedate: null
+        content: '',
+        date: '',
+        duedate: null,
       });
     }
   };
@@ -63,17 +81,17 @@ class AddTodo extends Component {
           onChange={this.handleChange}
           value={this.state.content}
         />
-        <LocalizationProvider dateAdapter={AdapterDateFns}>         
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DesktopDatePicker
-              id="new-item-date"
-              label="Due Date"
-              value={this.state.duedate}
-              onChange={this.handleDateChange}
-              renderInput={(params) => <TextField {...params} />}
+            id="new-item-date"
+            label="Due Date"
+            value={this.state.duedate}
+            onChange={this.handleDateChange}
+            renderInput={(params) => <TextField {...params} />}
           />
         </LocalizationProvider>
         <Button
-          style={{ marginLeft: "10px" }}
+          style={{ marginLeft: '10px' }}
           onClick={this.handleSubmit}
           variant="contained"
           color="primary"
